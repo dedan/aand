@@ -83,6 +83,9 @@ isis = isis(~isnan(isis));
 % construct histogram
 figure(2)
 hist(isis)
+title('Interspike-interval (ISI) histogram');
+xlabel('Interspike interval [ms]');
+ylabel('# of intervals');
 
 %% 2 b) CV
 disp(['coeff of variation: ' num2str(std(isis)/mean(isis))]);
