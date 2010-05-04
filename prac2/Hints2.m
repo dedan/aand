@@ -1,57 +1,72 @@
-% Hints for exercise 2 of AAND
+% Solution for exercise 2 of AAND
 
 %%
 % author: Paula Kuokkanen
 % date: 24 April 2009
 
 
-% NAME: Gabler's Stephan
-% Student ID number:
-% I co-operated with: (please send each your own solution though)
+% NAME: Stephan Gabler
+% Student ID number: 329131
+% I co-operated with: Mirko Dietricht
 % I used some ____ hours doing this exercise
 
 
 
 %% Part 1: Trial-Averaged firing rates
 
-% SpikeTimes.mat contains a matrix of spike times ([m x n], where n is the
-% number of trials and m is the maximum spike time index), obtained from
-% 100 presentations of a stimulus of 1 second length. The temporal precision
-% of the spike times is 0.1\,ms.
-
-% Try re-using your (modified) code from the last time here. You can also modify the
-% example solution of the exercise #1 if you want to.
-
-
-%%
+clear
 load SpikeTimes    % load spike time data
-SpikeTimes = SpikeTimes';
-T = 1000;
-res = 0.1;
-windows = [1 5 10];
-time = 0:res:T-res;
+SpikeTimes  = SpikeTimes';
+T           = 1000;
+res         = 0.1;
+windows     = [1 5 10];
+n_trials    = [10 100];
+time        = 0:res:T-res;
 
-rectf = @(t, sig) ones(1, length(find(t<sig))) * 1/sig;
-average = zeros(length(windows), length(time));
-N = size(SpikeTimes,2);         % number of trials
+%% a+b) different windows - different number of trials
+rectf   = @(t, sig) ones(1, length(find(t<sig))) * 1/sig;
+average = zeros(length(windows)*length(n_trials), length(time));
+N       = size(SpikeTimes,2);                               % number of trials
 
 figure(1);
+
+% for the different window functions
 for i = 1:length(windows)
-    subplot(3,1,i);
-    for j = 1:N;
-        % create spiketrain
-        valid           = SpikeTimes(j, ~isnan(SpikeTimes(j,:)));
-        spiketrain      = zeros(T/res, 1);
-        spiketrain(int16(valid/res)) = 1;
-        kernel          = rectf(time, windows(i));
-        kernel          = kernel/sum(kernel);
-        size(conv(spiketrain, kernel, 'same'))
-        size(average(i,:))
-        average(i,:)    = average(i,:) + conv(spiketrain, kernel, 'same')';
+    for j = 1:length(n_trials);
+        idx = (i*2)-mod(j,2);
+        subplot(length(windows),length(n_trials),idx);
+        
+        perms       = randperm(N);
+        rand_trials = perms(1:n_trials(j));
+        % for all trials
+        for k = 1:n_trials(j);
+            
+            % remove NaNs, create spiketrain
+            valid           = SpikeTimes(rand_trials(k), ~isnan(SpikeTimes(rand_trials(k),:)));
+            spiketrain      = zeros(1, T/res);
+            spiketrain(int16(valid/res)) = 1;
+            
+            % create, normalize kernel and convolve the signals
+            kernel          = rectf(time, windows(i));
+            kernel          = kernel/sum(kernel);
+            c               = conv(spiketrain, kernel);
+            samerange       = length(kernel)/2:length(c)-(length(kernel)/2);
+            average(idx,:)    = average(idx,:) + c(samerange);
+        end
+        
+        % average over trials and plot the average
+        average(idx,:) = average(idx,:) / n_trials(j);
+        plot(time, average(idx,:)*10000);
+        title(['window size: ' num2str(windows(i)) ' Ntrials: ' num2str(n_trials(j))]);
+        xlabel('t [ms]');
+        ylabel('f [Hz]');
     end
-    average(i,:) = average(i,:) / N;
-    plot(average(i,:));
 end
+
+%% c) reading of the neural code
+% the neural code of the presented stimulus seams to be oscillatory firing.
+% the readability could be improved by using a measure for oscillatory behavior.
+% the autocorrelation of the response could be measured for example
 
 
 
