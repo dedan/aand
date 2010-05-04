@@ -71,72 +71,25 @@ end
 
 
 
-%%
-% compute and plot different window functions
-for i=1:length(delta_ts)
-    figure
-    subplot(length(delta_ts)+1, 1, 1)
-    plot(spiketrain);
-    title(['delta t: ' num2str(delta_ts(i))]);
-    
-    for j=1:length(kernelfs)
-        kernel      = kernelfs{j}(time, delta_ts(i));
-        kernel      = kernel/sum(kernel);
-        smoothed    = conv(spiketrain, kernel);
-        
-        % plot convolved spiketrain
-        subplot(length(delta_ts)+1, 1, j+1);
-        plotrange   = floor(length(kernel)/2):length(smoothed)-(floor(length(kernel)/2))+1;
-        plot(time, 10000 * smoothed(plotrange(1:length(time))));
-        xlabel('t [ms]');
-        ylabel('f [Hz]');
-    end
-end
-
-% Plese also take a look at the raw data. This means: make a break point here
-% and see for the variables in "workspace". If you double click one of them
-% (there might be only one) a window should open above your command line
-% showing how the data in the variable is organized and the value(s) it has.
-
-
-
-% * Calculate the trial-averaged firing rate, using a sliding rectangular
-% window function with a width of 1, 5, and 10 ms.
-
-
-
-% * Include different numbers of trials (10, 50 and 100), and see how it
-% affects your results.
-
-
-
-% * use "handles(1)", "handles(2)" and "handles(3)" to asses the sub-figures
-% to plot the different numbers of trials used in averaging.
-
-
-
-
-
 %% Part 2, spike-train statistics
 
 %% 2 a) ISI distribution
 
-ISIs = diff(SpikeTimes);
-% calculates ISIs - differences between spike times, remember to check that
-% calculations go along the right matrix dimension
-
-ISIs = reshape(ISIs,1,[]);  % this use of reshape converts the matrix into a vector
-ISIs = ISIs(~isnan(ISIs));   % remove NaNs
+% compute differences  row-wise, flatten the result and remove NaNs
+isis = diff(SpikeTimes,1,2);
+isis = isis(:);
+isis = isis(~isnan(isis));
 
 % construct histogram
-
-% plot
-set(gcf,'CurrentAxes',handles(4));
+figure(2)
+hist(isis)
 
 %% 2 b) CV
+disp(['coeff of variation: ' num2str(std(isis)/mean(isis))]);
 
 
 %% 2 c) Fano factor
+
 
 
 %% Part 3, spike-triggered average
