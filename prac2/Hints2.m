@@ -51,7 +51,7 @@ for i = 1:length(windows)
             kernel          = kernel/sum(kernel);
             c               = conv(spiketrain, kernel);
             samerange       = length(kernel)/2:length(c)-(length(kernel)/2);
-            average(idx,:)    = average(idx,:) + c(samerange);
+            average(idx,:)  = average(idx,:) + c(samerange);
         end
         
         % average over trials and plot the average
@@ -90,6 +90,11 @@ disp(['coeff of variation: ' num2str(std(isis)/mean(isis))]);
 
 %% 2 c) Fano factor
 
+% count the spikes in a trial
+spikes      = sum(~isnan(SpikeTimes(:,:)),2);
+fano_factor = std(spikes)^2/mean(spikes);
+disp(['fano factor: ' num2str(fano_factor)]);
+
 
 
 %% Part 3, spike-triggered average
@@ -111,6 +116,38 @@ load Stim_Spikes_forSTA;
 
 
 
-% plot
-set(gcf,'CurrentAxes',handles(5));
+%% finished early
+% I think this should almost be the solution.
+% Just the factor is not in the range that I expect and at the moment
+% I don't get why. So solution with some scaling problem left but except from
+% this the method should be correct I think.
+sliding_window = 50;
+
+counts  = zeros(N, length(time));
+
+figure(3);
+
+% for all trials
+for i = 1:N
+    
+    % remove NaNs, create spiketrain
+    valid           = SpikeTimes(i, ~isnan(SpikeTimes(i,:)));
+    spiketrain      = zeros(1, T/res);
+    spiketrain(int16(valid/res)) = 1;
+    
+    % create, normalize kernel and convolve the signals
+    kernel      = rectf(time, sliding_window);
+    kernel      = kernel/sum(kernel);
+    c           = conv(spiketrain, kernel);
+    samerange   = length(kernel)/2:length(c)-(length(kernel)/2);
+    counts(i,:) = c(samerange) * 1000;
+end
+
+% fano factor across trials over time
+factors = zeros(1, length(time));
+for i = 1:length(time)
+    factors(i) = std(counts(:,i))^2 / mean(counts(:,i));
+end
+plot(time, factors);
+
 
