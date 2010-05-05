@@ -116,6 +116,41 @@ disp(['fano factor: ' num2str(fano_factor)]);
 % trial when calculating the STA.
 
 load Stim_Spikes_forSTA;
+SpikeTimes  = SpikeTimes';
+
+average = zeros(1, length(time));
+N       = size(SpikeTimes,1);                               % number of trials
+window  = 50;
+
+figure(3);
+
+% for the different window functions
+% for all trials
+for k = 1:N;
+    
+    % remove NaNs, create spiketrain
+    valid           = SpikeTimes(k, SpikeTimes(k,:) ~= 0 );
+    spiketrain      = zeros(1, T/res);
+    spiketrain(int16(valid/res)) = 1;
+    
+    % create, normalize kernel and convolve the signals
+    kernel          = rectf(time, window);
+    kernel          = kernel/sum(kernel);
+    c               = conv(spiketrain, kernel);
+    samerange       = length(kernel)/2:length(c)-(length(kernel)/2);
+    average         = average + c(samerange);
+end
+
+% average over trials and plot the average
+average             = average ./ N;
+
+resp = xcorr(average, Stimulus);
+
+
+plot(resp);
+xlabel('t [ms]');
+ylabel('f [Hz]');
+
 
 
 
@@ -125,10 +160,13 @@ load Stim_Spikes_forSTA;
 % I don't get why. So solution with some scaling problem left but except from
 % this the method should be correct I think.
 sliding_window = 50;
+load SpikeTimes
+SpikeTimes  = SpikeTimes';
+
 
 counts  = zeros(N, length(time));
 
-figure(3);
+figure(4);
 
 % for all trials
 for i = 1:N
