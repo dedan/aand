@@ -8,7 +8,7 @@
 % NAME: Stephan Gabler
 % Student ID number: 329131
 % I co-operated with: Mirko Dietricht
-% I used some ____ hours doing this exercise
+% I used some 4 hours doing this exercise
 
 
 
@@ -22,6 +22,7 @@ res         = 0.1;
 windows     = [1 5 10];
 n_trials    = [10 100];
 time        = 0:res:T-res;
+
 
 %% a+b) different windows - different number of trials
 rectf   = @(t, sig) ones(1, length(find(t<sig))) * 1/sig;
@@ -122,9 +123,11 @@ average = zeros(1, length(time));
 N       = size(SpikeTimes,1);                               % number of trials
 window  = 50;
 
-figure(3);
+f = figure(3);
 
-% for the different window functions
+kernel          = rectf(time, window);
+kernel          = kernel/sum(kernel);
+
 % for all trials
 for k = 1:N;
     
@@ -134,22 +137,27 @@ for k = 1:N;
     spiketrain(int16(valid/res)) = 1;
     
     % create, normalize kernel and convolve the signals
-    kernel          = rectf(time, window);
-    kernel          = kernel/sum(kernel);
     c               = conv(spiketrain, kernel);
     samerange       = length(kernel)/2:length(c)-(length(kernel)/2);
     average         = average + c(samerange);
 end
 
 % average over trials and plot the average
-average             = average ./ N;
+average = average ./ N;
+average = average * 10000;
+resp    = xcorr(average, Stimulus);
 
-resp = xcorr(average, Stimulus);
+% average number of spikes per trial --> normalization
+mean_n  = mean(sum(SpikeTimes ~= 0,2));
+resp    = resp ./ mean_n;
 
 
-plot(resp);
-xlabel('t [ms]');
-ylabel('f [Hz]');
+prespike = int16((length(resp)/2)-(window/res):(length(resp)/2));
+plot(resp(prespike));
+set(gca,'XTickLabel',{'50','40','30','20','10','0'});
+xlim([0 500]);
+ylabel('stimulus [s/sqrt(t)]');
+xlabel('timelag tau [ms]');
 
 
 
