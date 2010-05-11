@@ -36,53 +36,22 @@ load PoissonSpikeTrains.mat
 % load MyPoissonSpikeTrains.mat
 
 
-%% make figure for Problem 1
-
-figure(1); clf;
-set(gcf,'DefaultAxesTickLength',[0.005 0.01]);
-set(gcf,'DefaultAxesTickDir','out')
-set(gcf,'DefaultAxesbox','off')
-set(gcf,'DefaultAxesLayer','top')
-set(gcf,'DefaultAxesFontSize',10)
-xSize = 15.5;
-ySize = 11;
-xLeft = (21-xSize)/2;
-yTop = (30-ySize)/2;
-set(gcf,'PaperUnits','centimeters','PaperPosition',[xLeft yTop xSize ySize],'Position',[1000-xSize*30 700-ySize*30 xSize*40 ySize*40])
-
-w = 6/xSize;
-h1 = 5/ySize;
-h2 = 3/ySize;
-dh = 1.3/ySize;
-b1 = 1-h1-0.6/ySize; b2 = b1 -h2-dh; b3 = b2 -h2-dh; b4 = b3 -h2-dh;
-l1 = 1.5/xSize; l2 = l1 + w + 1.5/xSize; 
-
-hISI = axes('position',[l1 b1 w h1]);
-hAuto = axes('position',[l1 b2 w h2]);
-hISI_inh = axes('position',[l2 b1 w h1]);
-hAuto_inh = axes('position',[l2 b2 w h2]);
-
 
 %% Problem 1. Homogeneous Poisson process
 
 % a) calculate the interspike intervals form the spike times. Note that the
 % first ISI is relative to time point 0
 % Include a plot of the histogram.
+isi = diff(SpikeTimes);
+hist(isi);
+ylabel('count');
+xlabel('isi [ms]');
+title('isi histogram');
 
 
 % b) write functions to determine 
-%       *CV:            CvValue = CV(ISI) and 
-%       *Fano factor:   Fano = FF(SpikeTimes)
-% and write the results either in the figure (with function TEXT) or to the
-% screen
-%
-% you can place these functions either to the end of this file
-% or in a separate file. In either case start them with a line
-%
-% function result1 = TheNameOfTheFunction(parameter1, parameter2)
-%
-% now, if you give the parameter result1 any value within the function, it
-% will be returned to the calling function
+disp(CV(isi));
+disp(F(SpikeTimes, 100, 10000));
 
 % c) as well as a function determining
 %       * autocorrelation: C = Auto(SpikeTimes, dt)
@@ -90,13 +59,18 @@ hAuto_inh = axes('position',[l2 b2 w h2]);
 % and tau = -100:dt:100; is the time span you want to calculate the
 % correlations for.
 
-
 % please remember to scale all the results correctly and name all the axis. 
 % Only this way you can see whether your result makes sense at all!
 %
 % C(tau) should have loads of  values around 0 Hz and a peak at 0 ms to
 % approximately 5*10^-3. Which units does this autocorrelation function
 % have?
+dt = 0.1;
+c = Auto(SpikeTimes, dt);
+n = length(c);
+tau_range = int32(n/2 - 100/dt:dt:n/2 + 100/dt);
+
+bar(tau_range-min(tau_range)-1000, c(tau_range));
 
 % your CV and Fano factor may deviate from the theoretical value (1). Why?
 
@@ -152,16 +126,34 @@ figure(3); clf
 % xcorr, so please name your axis accordingly
 
 
+end
 
 
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+function res = CV(isi)
+    res = std(isi)/mean(isi);
+end
 
+function res = F(isi, binsize, T)
+    n = hist(isi, T/binsize);
+    res = var(n)/mean(n);        
+end
 
-
-
+function c = Auto(SpikeTimes, dt)
+    if size(SpikeTimes,1) > size(SpikeTimes,2)
+        SpikeTimes = SpikeTimes';
+    end
+    N_bins  = ceil(max(SpikeTimes)/dt);
+    M1      = length(SpikeTimes);
+    D       = ones(M1,1)*SpikeTimes - SpikeTimes'*ones(1,M1);
+    D       = D(:);
+    c       = hist(D,N_bins);
+    c(c==max(c)) = 0;
+end
 
 
 
