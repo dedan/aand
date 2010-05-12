@@ -74,7 +74,7 @@ x = double((tau_range-tau_range(round(length(tau_range)/2))))*0.1;
 
 bar(x, c(tau_range));
 xlabel('time [ms]');
-ylabel('spike count');
+ylabel('N_m [#spikes / s]^2');
 title('autocorrelation');
 
 % your CV and Fano factor may deviate from the theoretical value (1). Why?
@@ -116,7 +116,7 @@ x = double((tau_range-tau_range(round(length(tau_range)/2))))*0.1;
 
 bar(x, c(tau_range));
 xlabel('time [ms]');
-ylabel('spike count');
+ylabel('N_m [#spikes / s]^2');
 title('autocorrelation (inhomogeneous)');
 
 % How come the tail of the ISI histogram looks different from the histogram
@@ -179,7 +179,7 @@ for i=1:length(rates_ref)
     x = double((tau_range-tau_range(round(length(tau_range)/2))))*0.1;
     bar(x, c(tau_range));
     xlabel('time [ms]');
-    ylabel('spike count');
+    ylabel('N_m [#spikes / s]^2');
     title(['autocorrelation (r = ' num2str(rates_ref(i)) ')']);
 end
 
