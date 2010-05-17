@@ -1,14 +1,14 @@
 % Hints for exercise 3 of AAND
 % 
 % %
-% author: Mirko Dietrich
+% author: Stephan Gabler
 % date: 8 May 2009
 % 
 % 
 % NAME: 
-% Student ID number: 328984
-% I co-operated with: 
-% I used some __ hours doing this exercise
+% Student ID number: 328931
+% I co-operated with: Mirko Dietrich
+% I used some 6 hours doing this exercise
 % 
 % 
 % % You are welcome to use this code as a basis for your solution. 
