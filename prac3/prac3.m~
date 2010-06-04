@@ -1,0 +1,43 @@
+
+clear
+load oddballVPei
+
+
+res         = struct;
+interval    = [-100 900];
+dt          = 10;
+n_trials    = 80;
+
+
+% ex 1
+% find the channel we are looking for and get trial epochs for it
+epo = makeepochs(cnt, mrk, interval);
+FCz = squeeze(epo.x(:,strmatch('FCz', cnt.clab, 'exact'),:));
+
+figure(1)
+% compute trial averages for each class
+for i=1:length(mrk.className)
+    res(i).trial_avg = mean(FCz(:,logical(mrk.y(i,:))),2);
+end
+
+% ploting and labelling stuff
+plot(interval(1):dt:interval(2), [res.trial_avg]);
+xlabel('time [ms]');
+ylabel('voltage [uV]');
+legend(mrk.className);
+title('trial averages');
+
+ind = strmatch('dev', mrk.className, 'exact');
+dev_class = FCz(:,logical(mrk.y(ind,:)));
+noise = NaN(1,n_trials);
+
+for i=1:n_trials
+    mean_dev    = mean(dev_class(:,1:i),2) - res(ind).trial_avg;
+
+    noise(i)    = std(mean_dev);
+    overk
+end
+
+
+    
+    
