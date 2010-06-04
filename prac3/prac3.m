@@ -48,6 +48,10 @@ legend({'1/sqrt(k)', 'std(noise)_k'});
 xlabel('ntrials');
 ylabel('noise std');
 
+%% ex 2
 
-    
+[w b] = fisher(FCz, mrk.y);
+
+
+
     

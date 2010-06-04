@@ -1,5 +1,6 @@
 
 clear
+clc
 load oddballVPei
 
 
@@ -15,6 +16,7 @@ epo = makeepochs(cnt, mrk, interval);
 FCz = squeeze(epo.x(:,strmatch('FCz', cnt.clab, 'exact'),:));
 
 figure(1)
+subplot 211;
 % compute trial averages for each class
 for i=1:length(mrk.className)
     res(i).trial_avg = mean(FCz(:,logical(mrk.y(i,:))),2);
@@ -26,18 +28,30 @@ xlabel('time [ms]');
 ylabel('voltage [uV]');
 legend(mrk.className);
 title('trial averages');
+xlim(interval);
 
-ind = strmatch('dev', mrk.className, 'exact');
-dev_class = FCz(:,logical(mrk.y(ind,:)));
-noise = NaN(1,n_trials);
+% select only dev class
+ind         = strmatch('dev', mrk.className, 'exact');
+dev_class   = FCz(:,logical(mrk.y(ind,:)));
+noise_std   = NaN(1,n_trials);
+overk       = NaN(1,n_trials);
 
 for i=1:n_trials
-    mean_dev    = mean(dev_class(:,1:i),2) - res(ind).trial_avg;
-
-    noise(i)    = std(mean_dev);
-    overk
+    noise_std(i)    = std(mean(dev_class(:,1:i),2) - res(ind).trial_avg);
+    overk(i)        = 1/sqrt(i);
 end
+
+subplot 212
+plot(1:n_trials, [overk*max(noise_std); noise_std])
+title('std(noise) vs. 1/sqrt(k)');
+legend({'1/sqrt(k)', 'std(noise)_k'});
+xlabel('ntrials');
+ylabel('noise std');
+
+% ex 2
 
 
     
+
+
     
