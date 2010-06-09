@@ -1,5 +1,6 @@
 
-clear
+clear all
+close all
 clc
 load oddballVPei
 
@@ -48,10 +49,34 @@ legend({'1/sqrt(k)', 'std(noise)_k'});
 xlabel('ntrials');
 ylabel('noise std');
 
-%% ex 2
 
-[w b] = fisher(FCz, mrk.y);
+%% ex 3
 
+figure(2)
 
+% settings
+interval    = [300 370];
+res         = 0.001;
 
-    
+% make epochs
+epo     = makeepochs(cnt, mrk, interval);
+data    = squeeze(mean(epo.x));
+
+% compute fisher discriminant
+[w, b]  = fisher(data, epo.y);
+
+% project on discriminant
+proj    = w' * data;
+
+% plotting stuff
+range   = min(proj):res:max(proj);
+
+subplot 211;
+bar(range,histc(proj(logical(epo.y(1,:))), range), 'FaceColor','b') 
+hold on; 
+bar(range,histc(proj(logical(epo.y(2,:))), range), 'FaceColor','r')
+hold off;
+legend(mrk.className);
+
+subplot 212
+scalpmap(mnt, w);
