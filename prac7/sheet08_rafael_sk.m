@@ -1,5 +1,5 @@
 % Acquisition and Analysis of Neuronal Data - Exercise Sheet 8
-% Solution by Rafael Schultze-Kraft
+% Solution by Stephan Gabler in cooperation with Rafael
 
 clc
 close all
